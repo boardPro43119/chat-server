@@ -25,22 +25,26 @@
 				isTyping = false,
 				name,
 				message,
-				text;
+				text,
+				textbox,
+				msglist;
 		$(document).ready(function(){
+			msglist = $('#messages');
+			textbox = $('#m');
 			name = prompt("Please enter your name.");
 			socket.emit('signin', name);
 			socket.on('connection', function(name){
-				$('#messages').append($("<li>" + name + " joined the chat.</li>"));
+				msglist.append($("<li>" + name + " joined the chat.</li>"));
 			});
 			$('form').submit(function(){
-				message = $('#m').val();
+				message = textbox.val();
 				socket.emit('chat message', message);
-				$('#messages').append($("<li>" + name + ": " + message + "</li>"));
-				$('#m').val('');
+				msglist.append($("<li>" + name + ": " + message + "</li>"));
+				textbox.val('');
 				isTyping = false;
 				return false;
 			});
-			$("#m").on('input', function(event){
+			textbox.on('input', function(event){
 				text = event.target.value;
 				if(text != "" && !isTyping){
 					isTyping = true;
@@ -51,20 +55,20 @@
 					socket.emit("finished typing");
 				}
 			});
-			socket.on('chat message', function(msg, username){
-				$('#messages').append($("<li>" + username + ": " + msg + "</li>"));
-			});
-			socket.on('leave', function(username){
-				$('#messages').append($("<li>" + username + " disconnected.</li>"));
-			});
 			socket.on('type', function(username, id){
 				var typeMessage = $("<li id='" + username + "'>" + username + " is typing...</li>");
 				console.log(typeMessage);
-				$('#messages').append(typeMessage);
+				msglist.append(typeMessage);
 			});
 			socket.on('finish typing', function(username, id){
 				console.log($("#" + username));
 				$("#" + username).remove();
+			});
+			socket.on('chat message', function(msg, username){
+				msglist.append($("<li>" + username + ": " + msg + "</li>"));
+			});
+			socket.on('leave', function(username){
+				msglist.append($("<li>" + username + " disconnected.</li>"));
 			});
 		});
 	</script>
