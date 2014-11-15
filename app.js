@@ -1,19 +1,28 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-var numClients = 0;
+var express = require('express'), 
+	app = express(),
+	http = require('http').Server(app),
+	io = require('socket.io')(http),
+	numClients = 0,
+	usersOnline = {};
 
+app.use(express.static(__dirname + '/public'));
 app.get('/', function(req, res){
 	res.sendfile('index.html');
 });
 
 io.sockets.on('connection', function(client){
 	client.on('signin', function(name){
-		client.username = name;
-		console.log(name + " joined the chat");
-		client.broadcast.emit('connection', name);
-		numClients++;
-		client.id = numClients;
+		if(!usersOnline.hasOwnProperty(name)){
+			usersOnline[name]=client;
+			client.username = name;
+			console.log(name + " joined the chat");
+			client.broadcast.emit('connection', name);
+			numClients++;
+			client.id = numClients;
+		}
+		else{
+			client.emit('name taken');
+		}
 	});
 	client.on('chat message', function(msg){
 		console.log('message: ' + msg);
