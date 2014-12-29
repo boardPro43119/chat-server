@@ -38,10 +38,11 @@
 			});
 			$('form').submit(function(){
 				message = textbox.val();
+				isTyping = false;
+				socket.emit("finished typing");
 				socket.emit('chat message', message);
 				msglist.append($("<li>" + name + ": " + message + "</li>"));
 				textbox.val('');
-				isTyping = false;
 				return false;
 			});
 			textbox.on('input', function(event){
