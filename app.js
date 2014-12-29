@@ -7,21 +7,27 @@ var express = require('express'),
 
 app.use(express.static(__dirname + '/public'));
 app.get('/', function(req, res){
-	res.sendfile('index.html');
+	res.sendfile('./index.html');
 });
 
 io.sockets.on('connection', function(client){
 	client.on('signin', function(name){
-		if(!usersOnline.hasOwnProperty(name)){
+		if(!name || name==="null"){
+			client.emit('no name');
+			console.log("Case 1");
+		}
+		else if (!usersOnline.hasOwnProperty(name)){
 			usersOnline[name]=client;
 			client.username = name;
 			console.log(name + " joined the chat");
 			client.broadcast.emit('connection', name);
 			numClients++;
 			client.id = numClients;
+			console.log("Case 2");
 		}
-		else{
+		else {
 			client.emit('name taken');
+			console.log("Case 3");
 		}
 	});
 	client.on('chat message', function(msg){
@@ -31,6 +37,7 @@ io.sockets.on('connection', function(client){
 	});
 	client.on('disconnect', function(){
 		console.log(client.username + " disconnected");
+		delete usersOnline[client.username];
 		client.broadcast.emit('leave', client.username);
 	});
 	client.on('typing', function(){

@@ -23,12 +23,17 @@
 			msglist = $('#messages');
 			textbox = $('#m');
 			name = prompt("Please enter your name.");
+			console.log(name);
 			socket.emit('signin', name);
 			socket.on('connection', function(name){
 				msglist.append($("<li>" + name + " joined the chat.</li>"));
 			});
 			socket.on('name taken', function(){
 				name = prompt("Sorry, that name is already taken.  Please choose another one.");
+				socket.emit('signin', name);
+			});
+			socket.on('no name', function(){
+				name = prompt("Please enter your name.");
 				socket.emit('signin', name);
 			});
 			$('form').submit(function(){
