@@ -14,7 +14,7 @@
 	<script>
 		var		socket = io(),
 				isTyping = false,
-				name,
+				name,				//this client's username
 				message,
 				text,
 				textbox,
@@ -57,9 +57,10 @@
 				}
 			});
 			socket.on('type', function(username, id){
-				var typeMessage = $("<li id='" + username + "'>" + username + " is typing...</li>");
-				console.log(typeMessage);
-				msglist.append(typeMessage);
+				if(username!=name){
+					var typeMessage = $("<li id='" + username + "'>" + username + " is typing...</li>");
+					msglist.append(typeMessage);
+				}
 			});
 			socket.on('finish typing', function(username, id){
 				console.log($("#" + username));
