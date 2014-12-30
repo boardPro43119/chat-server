@@ -41,7 +41,6 @@
 				isTyping = false;
 				socket.emit("finished typing");
 				socket.emit('chat message', message);
-				msglist.append($("<li>" + name + ": " + message + "</li>"));
 				textbox.val('');
 				return false;
 			});
