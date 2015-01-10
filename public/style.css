@@ -1,8 +1,105 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font: 13px Helvetica, Arial; }
-form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+#msg { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+#msg input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+#msg button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
 #messages { list-style-type: none; margin: 0; padding: 0; }
 #messages li { padding: 5px 10px; }
 #messages li:nth-child(odd) { background: #eee; }
+/*Signin form:*/
+*:focus {outline:none; }
+#signin h2, #signin label {font-family: Arial, Georgia, "Times New Roman", serif;}
+#signin ul {
+    width:750px;
+    list-style-type:none;
+    list-style-position:outside;
+    margin:0px;
+    padding:0px;
+}
+#signin li{
+    padding:12px;
+    position:relative;
+}
+#signin li:first-child, #signin li:last-child {
+    border-bottom:1px solid #777;
+}
+#signin h2 {
+	margin:0;
+	display: inline;
+}
+#signin label {
+    width:150px;
+    margin-top: 3px;
+    display:inline-block;
+	float: left;
+    padding: 3px 3px 3px 0;
+}
+#signin input {
+    height:30px; 
+    width:220px; 
+    padding:5px 8px;
+}
+#signin button {
+	margin-left:10px;
+	height:30px;
+}
+#signin input { 
+    border:1px solid #aaa;
+    box-shadow: 0px 0px 3px #ccc, 0 10px 15px #eee inset;
+    border-radius:2px;
+}
+#signin input:focus {
+    background: #fff; 
+    border:1px solid #555; 
+    box-shadow: 0 0 3px #aaa;
+	padding-right:70px;
+}
+#signin button, #msg button {
+    background-color: #68b12f;
+    background: -webkit-gradient(linear, left top, left bottom, from(#68b12f), to(#50911e));
+    background: -webkit-linear-gradient(top, #68b12f, #50911e);
+    background: -moz-linear-gradient(top, #68b12f, #50911e);
+    background: -ms-linear-gradient(top, #68b12f, #50911e);
+    background: -o-linear-gradient(top, #68b12f, #50911e);
+    background: linear-gradient(top, #68b12f, #50911e);
+    border: 1px solid #509111;
+    border-bottom: 1px solid #5b992b;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -o-border-radius: 3px;
+    box-shadow: inset 0 1px 0 0 #9fd574;
+    -webkit-box-shadow: 0 1px 0 0 #9fd574 inset;
+    -moz-box-shadow: 0 1px 0 0 #9fd574 inset;
+    -ms-box-shadow: 0 1px 0 0 #9fd574 inset;
+    -o-box-shadow: 0 1px 0 0 #9fd574 inset;
+    color: white;
+    font-weight: bold;
+    padding: 6px 20px;
+    text-align: center;
+    text-shadow: 0 -1px 0 #396715;
+}
+#signin button:hover, #msg button:hover {
+    opacity:.85;
+    cursor: pointer; 
+}
+#signin button:active, #msg button:active {
+    border: 1px solid #20911e;
+    box-shadow: 0 0 10px 5px #356b0b inset; 
+    -webkit-box-shadow:0 0 10px 5px #356b0b inset ;
+    -moz-box-shadow: 0 0 10px 5px #356b0b inset;
+    -ms-box-shadow: 0 0 10px 5px #356b0b inset;
+    -o-box-shadow: 0 0 10px 5px #356b0b inset;
+     
+}
+#signin input.invalid:focus, .contact_form textarea.invalid:focus { /* when a field is considered invalid by the browser */
+    background: #fff url(images/invalid.png) no-repeat 98% center;
+    box-shadow: 0 0 5px #d45252;
+    border-color: #b03535
+}
+#signin input.valid:required, .contact_form textarea.valid:required { /* when a field is considered valid by the browser */
+    background: #fff url(images/<span class="skimlinks-unlinked">valid.png</span>) no-repeat 98% center;
+    box-shadow: 0 0 5px #5cd053;
+    border-color: #28921f;
+}

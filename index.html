@@ -6,7 +6,21 @@
 </head>
 <body>
 	<ul id="messages"></ul>
-	<form action="">
+	<form id="signin" action="">
+		<ul>
+			<li>
+				<h2>Welcome to the server!</h2>
+			</li>
+			<li>
+				<label for="name">Please enter your name:</label>
+			</li>
+			<li>
+				<input type="text" name="name" placeholder="John Doe" required/>
+				<button class="submit" type="submit">OK</button>
+			</li>
+		</ul>
+	</form>
+	<form id="msg" action="">
 		<input id="m" autocomplete="off"/><button>Send</button>
 	</form>
 	<script src="/socket.io/socket.io.js"></script>
@@ -22,7 +36,7 @@
 		$(document).ready(function(){
 			msglist = $('#messages');
 			textbox = $('#m');
-			name = prompt("Please enter your name.");
+			//name = prompt("Please enter your name.");
 			console.log(name);
 			socket.emit('signin', name);
 			socket.on('connection', function(name){
@@ -36,7 +50,7 @@
 				name = prompt("Please enter your name.");
 				socket.emit('signin', name);
 			});
-			$('form').submit(function(){
+			$('#msg').submit(function(){
 				message = textbox.val();
 				isTyping = false;
 				socket.emit("finished typing");
