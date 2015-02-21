@@ -23,11 +23,20 @@ io.sockets.on('connection', function(client){
 			client.broadcast.emit('connection', name);
 			numClients++;
 			client.id = numClients;
-			console.log("Case 2");
 		}
 		else {
 			client.emit('name taken');
-			console.log("Case 3");
+		}
+	});
+	client.on('validate name', function(name){
+		if(!name || name==="null"){
+			client.emit('no name');
+		}
+		else if(usersOnline.hasOwnProperty(name)){
+			client.emit('name taken');
+		}
+		else {
+			client.emit('name valid');
 		}
 	});
 	client.on('chat message', function(msg){

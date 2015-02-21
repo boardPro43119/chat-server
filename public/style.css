@@ -103,3 +103,23 @@ body { font: 13px Helvetica, Arial; }
     box-shadow: 0 0 5px #5cd053;
     border-color: #28921f;
 }
+
+.ui-icon.ui-icon-alert, .ui-icon.ui-icon-check {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+}
+.ui-icon.ui-icon-alert {
+    background-image: url(js/jquery-ui-1.11.2.custom/images/ui-icons_cd0a0a_256x240.png);
+}
+.ui-icon.ui-icon-check {
+    background-image: url(js/jquery-ui-1.11.2.custom/images/ui-icons_ffffff_256x240.png);
+}
+.invalid-name, .valid-name {
+    display: none;
+    color: #cd0a0a;
+    margin-left: 5px;
+}
+#signin .ui-state-disabled:hover {
+    opacity: 0.349999994039536;
+}

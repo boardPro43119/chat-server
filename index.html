@@ -2,8 +2,8 @@
 <html>
 <head>
 	<title>Socket.IO chat</title>
-	<link href="style.css" rel="stylesheet" type="text/css"/>
 	<link href="js/jquery-ui-1.11.2.custom/jquery-ui.css" rel="stylesheet" type="text/css"/>
+	<link href="style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 	<ul id="messages"></ul>
@@ -18,7 +18,14 @@
 				</li>
 				<li>
 					<input id="username" type="text" name="name" placeholder="John Doe" required/>
-					<button class="submit" type="submit">OK</button>
+					<button class="submit ui-state-disabled" type="submit" disabled="disabled">OK</button>
+					<span class="valid-name">
+						<span class="ui-icon ui-icon-check"></span>
+					</span>
+					<span class="invalid-name">
+						<span class="ui-icon ui-icon-alert"></span>
+						Name already used
+					</span>
 				</li>
 			</ul>
 		</form>
@@ -27,21 +34,25 @@
 		<input id="m" autocomplete="off"/><button>Send</button>
 	</form>
 	<script src="/socket.io/socket.io.js"></script>
-	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script src="js/jquery-ui-1.11.2.custom/external/jquery/jquery.js"></script>
 	<script src="js/jquery-ui-1.11.2.custom/jquery-ui.js"></script>
 	<script>
 		var		socket = io(),
 				isTyping = false,
 				name,				//this client's username
 				message,
-				text,
-				textbox,
-				msglist;
+				text, //text in message input box
+				textbox, //message input box
+				msglist,
+				signinForm,
+				nameInput; // textbox to enter name in signin form
 		$(document).ready(function(){
+			signinForm = $("#signin-form");
 			msglist = $('#messages');
 			textbox = $('#m');
+			nameInput = $("#username");
 			
-			$("#signin-form").dialog({
+			signinForm.dialog({
 				autoOpen: true,
 				closeOnEscape: false,
 				height: 400,
@@ -50,29 +61,31 @@
 				buttons: {
 					"OK": undefined
 				}
-				
-			})
-			
-			//name = prompt("Please enter your name.");
-			//console.log(name);
-			//socket.emit('signin', name);
-			$("#signin-form").on('submit', function(e){
+			});
+			signinForm.on('submit', function(e){
 				e.preventDefault();
-				socket.emit('signin', $('#username').val());
-				$("#signin-form").dialog("close");
+				name=nameInput.val();
+				socket.emit('signin', name);
+				signinForm.dialog("close");
 			});
 			socket.on('connection', function(name){
 				msglist.append($("<li>" + name + " joined the chat.</li>"));
 			});
 			socket.on('name taken', function(){
-				// name = prompt("Sorry, that name is already taken.  Please choose another one.");
-				// socket.emit('signin', name);
-				$("#signin-form").dialog("open");
-				$("label[for='name']").text("Sorry, that name is already taken.  Please choose another one.");
+				signinForm.dialog("open");
+				$(".valid-name").hide();
+				$(".invalid-name").show();
+				$(".submit").attr("disabled", "disabled").addClass("ui-state-disabled");
+			});
+			socket.on('name valid', function(){
+				$(".invalid-name").hide();
+				$(".valid-name").show();
+				$(".submit").attr("disabled", false).removeClass("ui-state-disabled");
 			});
 			socket.on('no name', function(){
-				// name = prompt("Please enter your name.");
-				// socket.emit('signin', name);
+				$(".invalid-name").hide();
+				$(".valid-name").hide();
+				$(".submit").attr("disabled", "disabled").addClass("ui-state-disabled");
 			});
 			$('#msg').submit(function(){
 				message = textbox.val();
@@ -93,6 +106,13 @@
 					socket.emit("finished typing");
 				}
 			});
+
+			// listen for input event name box, ask server to check if name is unique
+			nameInput.on('input', function(event){
+				name = event.target.value;
+				socket.emit("validate name", name);
+			});
+
 			socket.on('type', function(username, id){
 				if(username!=name){
 					var typeMessage = $("<li id='" + username + "'>" + username + " is typing...</li>");
