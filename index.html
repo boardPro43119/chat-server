@@ -115,13 +115,13 @@
 
 			socket.on('type', function(username, id){
 				if(username!=name){
-					var typeMessage = $("<li id='" + username + "'>" + username + " is typing...</li>");
+					var typeMessage = $("<li id='" + username.split(" ")[0] + id + "'>" + username + " is typing...</li>");
 					msglist.append(typeMessage);
 				}
 			});
 			socket.on('finish typing', function(username, id){
 				console.log($("#" + username));
-				$("#" + username).remove();
+				$("#" + username.split(" ")[0] + id).remove();
 			});
 			socket.on('chat message', function(msg, username){
 				msglist.append($("<li>" + username + ": " + msg + "</li>"));
