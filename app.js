@@ -3,7 +3,8 @@ var express = require('express'),
 	http = require('http').Server(app),
 	io = require('socket.io')(http),
 	numClients = 0,
-	usersOnline = {};
+	usersOnline = {},
+	invalidCharacters = new RegExp("[^a-zA-Z0-9 ]");
 
 app.use(express.static(__dirname + '/public'));
 app.get('/', function(req, res){
@@ -29,7 +30,10 @@ io.sockets.on('connection', function(client){
 		}
 	});
 	client.on('validate name', function(name){
-		if(!name || name==="null"){
+		if(name.match(invalidCharacters)){
+			client.emit('name illegal');
+		}
+		else if(!name || name==="null"){
 			client.emit('no name');
 		}
 		else if(usersOnline.hasOwnProperty(name)){

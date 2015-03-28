@@ -115,7 +115,7 @@ body { font: 13px Helvetica, Arial; }
 .ui-icon.ui-icon-check {
     background-image: url(js/jquery-ui-1.11.2.custom/images/ui-icons_ffffff_256x240.png);
 }
-.invalid-name, .valid-name {
+.used-name, .illegal-name, .valid-name {
     display: none;
     color: #cd0a0a;
     margin-left: 5px;

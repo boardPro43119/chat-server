@@ -22,9 +22,13 @@
 					<span class="valid-name">
 						<span class="ui-icon ui-icon-check"></span>
 					</span>
-					<span class="invalid-name">
+					<span class="used-name">
 						<span class="ui-icon ui-icon-alert"></span>
 						Name already used
+					</span>
+					<span class="illegal-name">
+						<span class="ui-icon ui-icon-alert"></span>
+						Invalid character
 					</span>
 				</li>
 			</ul>
@@ -74,17 +78,26 @@
 			socket.on('name taken', function(){
 				signinForm.dialog("open");
 				$(".valid-name").hide();
-				$(".invalid-name").show();
+				$(".illegal-name").hide();
+				$(".used-name").show();
+				$(".submit").attr("disabled", "disabled").addClass("ui-state-disabled");
+			});
+			socket.on('name illegal', function(){
+				$(".valid-name").hide();
+				$(".used-name").hide();
+				$(".illegal-name").show();
 				$(".submit").attr("disabled", "disabled").addClass("ui-state-disabled");
 			});
 			socket.on('name valid', function(){
-				$(".invalid-name").hide();
+				$(".used-name").hide();
+				$(".illegal-name").hide();
 				$(".valid-name").show();
 				$(".submit").attr("disabled", false).removeClass("ui-state-disabled");
 			});
 			socket.on('no name', function(){
-				$(".invalid-name").hide();
+				$(".used-name").hide();
 				$(".valid-name").hide();
+				$(".illegal-name").hide();
 				$(".submit").attr("disabled", "disabled").addClass("ui-state-disabled");
 			});
 			$('#msg').submit(function(){
