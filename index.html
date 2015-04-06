@@ -50,6 +50,12 @@
 				msglist,
 				signinForm,
 				nameInput; // textbox to enter name in signin form
+		function trimMessageList(){
+			var messages = msglist.children("li");
+			if(messages.length>50){
+				messages.first().remove();
+			}
+		}
 		$(document).ready(function(){
 			signinForm = $("#signin-form");
 			msglist = $('#messages');
@@ -74,6 +80,7 @@
 			});
 			socket.on('connection', function(name){
 				msglist.append($("<li>" + name + " joined the chat.</li>"));
+				trimMessageList();
 			});
 			socket.on('name taken', function(){
 				signinForm.dialog("open");
@@ -136,11 +143,13 @@
 				console.log($("#" + username));
 				$("#" + username.split(" ")[0] + id).remove();
 			});
-			socket.on('chat message', function(msg, username){
+			socket.on('chat message', function(username, msg){
 				msglist.append($("<li>" + username + ": " + msg + "</li>"));
+				trimMessageList();
 			});
 			socket.on('leave', function(username){
 				msglist.append($("<li>" + username + " disconnected.</li>"));
+				trimMessageList();
 			});
 		});
 	</script>
