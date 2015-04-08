@@ -1,5 +1,5 @@
 var express = require('express'), 
-	// redis = require('redis'),
+	redis = require('redis'),
 	path = require('path'),
 	app = express(),
 	http = require('http').Server(app),
@@ -7,8 +7,7 @@ var express = require('express'),
 	numClients = 0,
 	usersOnline = {},
 	invalidCharacters = new RegExp("[^a-zA-Z0-9 ]"),
-	// redisClient = redis.createClient(3000, "localhost"), 
-	messages = [];
+	redisClient = redis.createClient(6379, "localhost");
 
 // redisClient.on("error", function(err){
 // 	console.log(err);
@@ -23,9 +22,9 @@ app.get('/', function(req, res){
 
 io.sockets.on('connection', function(client){
 	client.on('signin', function(name){
-		 if(!name || name==="null"){
+		if(!name || name==="null"){
 		 	client.emit('no name');
-		 }
+		}
 		else if(name.match(invalidCharacters)){
 			client.emit('name illegal');
 		}
@@ -36,8 +35,18 @@ io.sockets.on('connection', function(client){
 			client.broadcast.emit('connection', name);
 			numClients++;
 			client.id = numClients;
-			messages.forEach(function(m){
-				client.emit('chat message', m.username, m.message);
+			redisClient.lrange("messages", 0, 19, function(err, messages){
+				// create array of redis list items
+				messages = messages.reverse();
+				// Each array element is a stringified array of format
+				// "[\"(username)\", \"(message)\"]". De-stringify each of these internal
+				// arrays and send the username and message (first and second internal 
+				// array elements) as paramaters for the chat message event emitted to
+				// the client
+				messages.forEach(function(m){
+					m=JSON.parse(m);
+					client.emit('chat message', m[0], m[1]);
+				});
 			});
 		}
 		else {
@@ -60,17 +69,12 @@ io.sockets.on('connection', function(client){
 	});
 	client.on('chat message', function(msg){
 		console.log('message: ' + msg);
-		// redisClient.lpush("messages", msg, function(err, reply){
-		// 	redisClient.lrange("messages", 0, -1, function(err, messages){
-		// 		console.log(messages);
-		// 	});
-		// });
-		messages.push({
-			username: client.username,
-			message: msg
-		});
-		if(messages.length>20){
-			messages.shift();
+		// create array of username and message, put it in string form, and
+		// push it to messages redis list
+		redisClient.lpush("messages", JSON.stringify([client.username, msg]));
+		// if list is longer than 10 items, remove the last one
+		if(redisClient.llen("messages")>50){
+			redisClient.ltrim("messages", 0, 49);
 		}
 		client.broadcast.emit('chat message', client.username, msg);
 		client.broadcast.emit('finished typing', client.username);
