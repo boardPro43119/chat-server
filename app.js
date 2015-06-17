@@ -8,16 +8,43 @@ var express = require('express'),
 	usersOnline = {},
 	invalidCharacters = new RegExp("[^a-zA-Z0-9 ]"),
 	redisClient = redis.createClient(6379, "localhost"),
-	redisReady = false;
+	redisReady = false,
+	// Array to store messages from Redis server
+	messageList = [];
 
 redisClient.on("ready", function(){
 	redisReady = true;
+	//if messageList array is empty, populate it from Redis list
+	if(messageList.length===0){
+		console.log("populating array");
+		redisClient.lrange("messages", 0, 24, function(err, messages){
+			messages.reverse();
+			messages.forEach(function(m){
+				messageList.push(m);
+			});
+		});
+	}
+	else{
+		console.log("populating Redis list");
+		redisClient.ltrim("messages", 1, 0);
+		console.log(redisClient.lrange("messages", 0, -1));
+		var reverseList = messageList
+			.slice(0)
+			.reverse();
+		console.log(reverseList, messageList);
+		reverseList.forEach(function(m){
+			redisClient.rpush("messages", m);
+		});
+	}
 	console.log("Redis connection established");
-})
+});
 
  redisClient.on("error", function(){
- 	redisReady = false;
- 	console.log("Redis server disconnected");
+ 	if(redisClient){
+	 	console.log(messageList);
+	 	redisReady = false;
+	 	console.log("Redis server disconnected");
+	 }
  });
 
 // redisClient.set("key", "value");
@@ -42,19 +69,31 @@ io.sockets.on('connection', function(client){
 			client.broadcast.emit('connection', name);
 			numClients++;
 			client.id = numClients;
+			//if Redis server running, add messages to page from Redis list
 			if(redisReady){
-				redisClient.lrange("messages", 0, 19, function(err, messages){
-					// create array of redis list items
+				redisClient.lrange("messages", 0, 24, function(err, messages){
+					// create array of redis list items.  Reverse is necessary
+					//because new items are pushed to the front of the list.
 					messages = messages.reverse();
 					// Each array element is a stringified array of format
-					// "[\"(username)\", \"(message)\"]". De-stringify each of these internal
-					// arrays and send the username and message (first and second internal 
-					// array elements) as paramaters for the chat message event emitted to
-					// the client
+					// "[\"(username)\", \"(message)\"]". De-stringify each of 
+					//these internalarrays and send the username and message
+					//(first and second internal array elements) as paramaters
+					//for the chat message event emitted to the client
 					messages.forEach(function(m){
 						m=JSON.parse(m);
 						client.emit('chat message', m[0], m[1]);
 					});
+				});
+			}
+			//if Redis server down, add messages to page from messageList JS
+			//array
+			else {
+				// no reverse here since new items are pushed to the back of the
+				//array
+				messageList.forEach(function(m){
+					m = JSON.parse(m);
+					client.emit('chat message', m[0], m[1]);
 				});
 			}
 		}
@@ -81,11 +120,16 @@ io.sockets.on('connection', function(client){
 		// create array of username and message, put it in string form, and
 		// push it to messages redis list
 		if(redisReady){
-			redisClient.lpush("messages", JSON.stringify([client.username, msg]));
-			// if list is longer than 10 items, remove the last one
-			if(redisClient.llen("messages")>50){
-				redisClient.ltrim("messages", 0, 49);
+			redisClient.lpush(
+				"messages", JSON.stringify([client.username, msg]));
+			// if list is longer than 25 items, remove the last one
+			if(redisClient.llen("messages")>25){
+				redisClient.ltrim("messages", 0, 24);
 			}
+		}
+		messageList.push(JSON.stringify([client.username, msg]));
+		if(messageList.length>25){
+			messageList.shift();
 		}
 		client.broadcast.emit('chat message', client.username, msg);
 		client.broadcast.emit('finished typing', client.username);
